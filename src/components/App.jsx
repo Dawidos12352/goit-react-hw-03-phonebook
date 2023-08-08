@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Phonebook from "components/Phonebook/Phonebook";
 import Contacts from "components/Contacts/Contacts";
 import Filter from "components/Filter/Filter"
@@ -37,6 +37,22 @@ const deleteContact = id => {
 
 const filteredContacts = contacts.filter(contact =>
   contact.name.toLowerCase().includes(filter.toLowerCase()));
+
+
+  useEffect(() => {
+    const storedContacts = localStorage.getItem('contacts');
+    if (storedContacts) {
+      try {
+        setContacts(JSON.parse(storedContacts));
+      } catch (error) {
+        console.error('Error parsing contacts from localStorage:', error);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('contacts', JSON.stringify(contacts));
+  }, [contacts]);
 
 
   return (
