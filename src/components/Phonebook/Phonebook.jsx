@@ -1,29 +1,46 @@
-import React, { useState } from 'react';
+import React, { Component } from "react";
 import PropTypes from 'prop-types';
 import css from "./Phonebook.module.css";
 import { nanoid } from 'nanoid';
 
 
-const Phonebook = ({addContact}) => {
-    const [name, setName] = useState("");
-    const [number, setNumber] = useState("");
+class Phonebook extends Component {
+  state = {
+    name: "",
+    number: "",
+  };
 
-const handleSubmit = event => {
+  handleContactData(event) {
+    this.setState({ [event.target.name]: event.target.value });
+  }
+
+  handleSubmit(event) {
     event.preventDefault();
 
-    const contact = {
-        id: nanoid(),
-        name, 
-        number,
+    for (const { name } of this.props.contacts) {
+      if (name === this.state.name) {
+        alert(`${name} is already in contacts`);
+
+        return;
+      }
+    }
+
+    const newContact = {
+      id: nanoid(),
+      name: this.state.name,
+      number: this.state.number,
     };
 
-    addContact(contact);
-    setName("");
-    setNumber("");
-};
+    this.props.handleAddContact(newContact);
+
+    this.setState({ name: "", number: "" });
+  }
+
+  render() {
+    const { name, number } = this.state;
 
     return(
-    <form className={css.formContact} onSubmit={handleSubmit} >
+      <form onSubmit={this.handleSubmit.bind(this)} className={css.formContact}>
       <label className={css.inputName}>Name</label>
       <input
         className={css.inputContactName}
@@ -35,7 +52,7 @@ const handleSubmit = event => {
         title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
         required
         value={name}
-        onChange={event => setName(event.target.value)}
+        onChange={this.handleContactData.bind(this)}
       />
       <label className={css.inputName}>Number</label>
       <input
@@ -46,17 +63,20 @@ const handleSubmit = event => {
         title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
         required
         value={number}
-        onChange={event => setNumber(event.target.value)}
+        onChange={this.handleContactData.bind(this)}
         />
       <button className={css.formBtn} type="submit">Add contact</button>
 
     </form>
     );
 };
+}
 
 Phonebook.propTypes = {
-    addContact: PropTypes.func.isRequired,
+  contacts: PropTypes.array.isRequired,
+  handleAddContact: PropTypes.func.isRequired,
 };
+
 
 
 export default Phonebook;
